@@ -1,23 +1,16 @@
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
 import java.util.Base64;
 
 public class AESEncoding {
+    public static final int BLOCK_SIZE = 16;
     private static final int keyLength = 32;
     private static final SecureRandom random = new SecureRandom();
 
     private static SecretKey key;
     private static IvParameterSpec iv;
-
-    public static void printByteArr(byte[] arr) {
-        for (int i = 0; i < arr.length; i++) {
-            System.out.printf(i == 0 ? "%d" : ",%d", (arr[i] & 0xFF));
-        }
-        System.out.println("\n");
-    }
 
     public static byte [] encrypt(String plaintext) throws Exception {
         key = generateKey();
@@ -30,24 +23,29 @@ public class AESEncoding {
                 Base64.getEncoder().withoutPadding()
                         .encodeToString(key.getEncoded())
         );
-        printByteArr(iv.getIV());
+
         return cipher.doFinal(plaintext.getBytes());
     }
 
-    public static String decrypt(byte [] ciphertext) throws Exception {
-        printByteArr(ciphertext);
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
-        cipher.init(Cipher.DECRYPT_MODE, key, iv);
-        return new String(cipher.doFinal(ciphertext));
+    public static void decrypt(byte[] ciphertext) throws BadPaddingException {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+            cipher.init(Cipher.DECRYPT_MODE, key, iv);
+            cipher.doFinal(ciphertext);
+        } catch (BadPaddingException e) {
+            throw e;
+        } catch (Exception e) {
+            //ignore
+        }
     }
 
-    public static SecretKey generateKey() throws Exception {
+    public static SecretKey generateKey() {
         byte[] keyBytes = new byte[keyLength];
         random.nextBytes(keyBytes);
         return new SecretKeySpec(keyBytes, "AES");
     }
 
-    public static IvParameterSpec generateIV(Cipher cipher) throws Exception {
+    public static IvParameterSpec generateIV(Cipher cipher) {
         byte [] ivBytes = new byte[cipher.getBlockSize()];
         random.nextBytes(ivBytes);
         return new IvParameterSpec(ivBytes);
