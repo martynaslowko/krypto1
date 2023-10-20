@@ -1,6 +1,7 @@
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
 
@@ -21,12 +22,21 @@ public class Main {
 //        String plaintext = scanner.nextLine();
         String plaintext = "bardzo tajne hasło kurcze kto to wymyślał jezu chryste ja juz nie moge";
 
+        System.out.println("\nPLAINTEXT: ");
+        System.out.println(parseToBlocks(plaintext.getBytes(), AESEncoding.BLOCK_SIZE));
+
+
         byte[] ciphertext = AESEncoding.encrypt(plaintext);
+        System.out.println("\nCIPHERTEXT:");
         System.out.println(parseToBlocks(ciphertext, AESEncoding.BLOCK_SIZE));
 
         BlindDecryptor blindDecryptor = new BlindDecryptor();
+        long start = System.nanoTime();
         byte[] decryptedValue = blindDecryptor.decrypt(ciphertext);
+        long diff = TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+        System.out.println("\nDECRYPTED CIPHERTEXT:");
         System.out.println(parseToBlocks(decryptedValue, AESEncoding.BLOCK_SIZE));
+        System.out.println("\nDecrypting took: " + diff + " milliseconds");
 
         System.out.printf("%n%s", new String(decryptedValue));
     }

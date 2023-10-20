@@ -2,7 +2,6 @@ import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
-import java.util.Base64;
 
 public class AESEncoding {
     public static final int BLOCK_SIZE = 16;
@@ -14,16 +13,9 @@ public class AESEncoding {
 
     public static byte [] encrypt(String plaintext) throws Exception {
         key = generateKey();
-
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
         iv = generateIV(cipher);
         cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-
-        System.out.println(
-                Base64.getEncoder().withoutPadding()
-                        .encodeToString(key.getEncoded())
-        );
-
         return cipher.doFinal(plaintext.getBytes());
     }
 
